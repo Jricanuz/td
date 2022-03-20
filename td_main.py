@@ -8,13 +8,13 @@ fps = 60
 white = (255, 255, 255)
 black = (0, 0, 0)
 class Button:
-    def __init__(self, screen, cords, size, image, command, argument=None, center=None, angle=0, color_key=None):
+    def __init__(self, screen, cords, size, image, command, argument=None, center=None, angle=0, colorkey=None):
         self.screen = screen
         self.image = py.image.load(image)
         self.image = py.transform.scale(self.image, (size[0], size[1]))
         self.image = py.transform.rotate(self.image, angle)
-        if color_key != None:
-            self.image.set_colorkey(color_key)
+        if colorkey != None:
+            self.image.set_colorkey(colorkey)
         self.rect = self.image.get_rect()
         self.size = size
         self.rect.x = cords[0]
@@ -179,8 +179,8 @@ class ig_menu:
         self.map = map
         self.clicks_of_play_button = 0
         self.game_running = False
-        self.ig_play_button = Button(self.screen, (width-width//10, height-height//10), (width//10, height//10), "play_button_ig.png", play_pause_command, color_key=self.white)
-        self.ig_pause_button = Button(self.screen, (width-width//10, height-height//10), (width//10, height//10), "pause_button_ig.png", play_pause_command, color_key=self.white)
+        self.ig_play_button = Button(self.screen, (width-width//10, height-height//10), (width//10, height//10), "play_button_ig.png", play_pause_command, colorkey=self.white)
+        self.ig_pause_button = Button(self.screen, (width-width//10, height-height//10), (width//10, height//10), "pause_button_ig.png", play_pause_command, colorkey=self.white)
         number_on = 0
         self.image_for_mouse = None
         self.placed = True
@@ -410,6 +410,8 @@ class settings:
         self.clicked = False
         self.opened = False
     def draw(self):
+        if self.opened:
+            self.settings_menu.draw()
         pos = py.mouse.get_pos()
         if py.mouse.get_pressed()[0] == 1 and self.clicked == False and self.rect.collidepoint(pos):
             self.opened = True
@@ -418,11 +420,10 @@ class settings:
             self.clicked = False
         if py.mouse.get_pressed()[0] == 1 and not self.rect.collidepoint(pos) and not self.settings_menu.bg_rect.collidepoint(pos):
             self.opened = False
-        if self.opened:
-            self.settings_menu.draw()
         self.screen.blit(self.image, self.rect)
 class settings_menu:
     def __init__(self, screen, bg_image, colorkey=None):
+        self.white = (255, 255, 255)
         self.screen = screen
         self.bg_image = py.image.load(bg_image)
         self.bg_image = py.transform.scale(self.bg_image, (width//2, height//3))
@@ -430,10 +431,14 @@ class settings_menu:
             self.bg_image.set_colorkey(colorkey)
         self.bg_rect = self.bg_image.get_rect()
         self.bg_rect.center = (width//2, height//3)
+        self.buttons = [Button(self.screen, (width//3, (height//2)-(height//50)), (width//20, height//20), "home_button.png", start_game, colorkey=self.white)]
     def draw(self):
         self.screen.blit(self.bg_image, self.bg_rect)
+        for button in self.buttons:
+            button.draw()
 def start_game():
-    global screen_on, page_on
+    global screen_on, page_on, settings_wheel
+    settings_wheel.opened = False
     page_on = 1
     screen_on = "map_select"
 def start_map_1():
@@ -504,7 +509,7 @@ def play_pause():
         game_running = not game_running
         menu_ig.game_running = game_running
 def main():
-    global screen_on, page_on, game_running, menu_ig, charictars_on_screen, money, starting_money
+    global screen_on, page_on, game_running, menu_ig, charictars_on_screen, money, starting_money, settings_wheel
     draw_loading_screen()
     white = (255, 255, 255)
     running = True
@@ -796,6 +801,8 @@ def main():
         for event in py.event.get():
             if event.type == py.QUIT:
                 running = False
+            if event.type == py.MOUSEBUTTONDOWN:
+                print(py.mouse.get_pos())
         if screen_on == "opening":
             draw_start_screen(start_text_1, start_text_1_cords, start_text_2, start_text_2_cords, start_button, floating_texts)
         elif screen_on == "map_select":
