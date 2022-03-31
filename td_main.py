@@ -1110,6 +1110,8 @@ def main():
             elif menu_ig.just_placed and not menu_ig.can_place(charictars_on_screen):
                 floating_texts.append(floating_text(screen, "You cannot place that there", size=width//15))
             full_rounds.run()
+            if not paused:
+                spawn_enemy('base_enemy', 10, ['zombie.png']) 
             draw_map_screen(map_1_bg_img, map_1_bg_rect, menu_ig, charictars_on_screen, floating_texts, enemys, settings_wheel, projectiles)
         elif screen_on == "map_2":
             menu_ig.map = map_2
